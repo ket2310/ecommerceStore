@@ -4,12 +4,13 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try { // find all products
     // be sure to include its associated Category and Tag data
-    const allProductData = Product.findAll({
-      include: [{ model: Category }, { model: Tag }]
+    const allProductData = await Product.findAll({
+      include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'tags' }]
     });
+    console.log(allProductData)
     res.status(200).json(allProductData);
   } catch (err) {
     res.status(500).json(err);
@@ -22,7 +23,10 @@ router.get('/:id', async (req, res) => {
   // be sure to include its associated Category and Tag data
   try {
     const productData = await Product.findByPk(req.params.id, {
-      include: [{ model: Category}, { model: Tag}]
+      include: [{ model: Category}, { model: Tag},
+        { model: Tag, through: ProductTag, as: 'product_tagalias' }]
+       // JOIN with travellers, using the Trip through table
+        
     });
     res.status(200).json(productData);
   } catch (err){
